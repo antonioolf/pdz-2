@@ -1,5 +1,5 @@
 applicationType: default
-defaultPackage: com.example
+defaultPackage: br.com.antoniooliveira
 testFramework: junit
 sourceLanguage: kotlin
 buildTool: gradle

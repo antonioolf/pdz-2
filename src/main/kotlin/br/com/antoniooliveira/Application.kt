@@ -1,10 +1,10 @@
-package com.example
+package br.com.antoniooliveira
 
 import io.micronaut.runtime.Micronaut.*
 fun main(args: Array<String>) {
 	build()
 	    .args(*args)
-		.packages("com.example")
+		.packages("br.com.antoniooliveira")
 		.start()
 }
 
