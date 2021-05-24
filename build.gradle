@@ -35,7 +35,14 @@ dependencies {
     implementation("io.micronaut:micronaut-validation")
     runtimeOnly("ch.qos.logback:logback-classic")
     runtimeOnly("com.fasterxml.jackson.module:jackson-module-kotlin")
-    runtimeOnly("com.h2database:h2")
+    runtime("io.micronaut.sql:micronaut-jdbc-hikari")
+    runtimeOnly("org.postgresql:postgresql:42.2.20.jre7")
+
+    testImplementation("org.testcontainers:junit-jupiter")
+    testImplementation("org.testcontainers:postgresql")
+    testImplementation("org.testcontainers:testcontainers")
+
+    implementation("io.micronaut.flyway:micronaut-flyway")
 }
 
 
@@ -57,6 +64,4 @@ tasks {
             jvmTarget = "11"
         }
     }
-
-
 }

@@ -10,7 +10,7 @@ data class Plan (
     val id: Long,
 
     @Column
-    val name: String,
+    val plan_name: String,
 
     @Column
     val value: Long,

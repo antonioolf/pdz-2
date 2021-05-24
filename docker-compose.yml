@@ -1,0 +1,10 @@
+version: "3.3"
+services:
+  postgres:
+    image: "postgres:12.3"
+    environment:
+      POSTGRES_DB: "subscriptions_db"
+      POSTGRES_USER: "admin"
+      POSTGRES_PASSWORD: "123"
+    ports:
+      - 5432:5432
