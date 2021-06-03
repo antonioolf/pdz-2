@@ -43,6 +43,8 @@ dependencies {
     testImplementation("org.testcontainers:testcontainers")
 
     implementation("io.micronaut.flyway:micronaut-flyway")
+    implementation 'com.squareup.okhttp3:okhttp:3.14.6'
+    implementation 'org.json:json:20171018'
 }
 
 
