@@ -1,6 +1,7 @@
 package br.com.antoniooliveira.controller
 
 import br.com.antoniooliveira.model.Subscription
+import br.com.antoniooliveira.repository.PlanRepository
 import br.com.antoniooliveira.repository.SubscriptionRepository
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.*
@@ -15,11 +16,15 @@ const val SUBSCRIPTION_TOTAL_DAYS = 365
 const val RENEWAL_DAYS = 60
 
 @Controller("subscription")
-class SubscriptionController (private val subscriptionRepository: SubscriptionRepository) {
+class SubscriptionController (private val subscriptionRepository: SubscriptionRepository, private val planRepository: PlanRepository) {
     val endpointPayments = "https://run.mocky.io/v3/5aade899-0865-43b8-9bd2-86b29ed34902"
 
     @Post
     fun create(subscription: Subscription): HttpResponse<Any> {
+        if (!planRepository.existsById(subscription.id_plan)) {
+            return HttpResponse.noContent()
+        }
+
         subscription.renewal_days = RENEWAL_DAYS
         subscription.active = true
 
