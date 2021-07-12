@@ -16,8 +16,11 @@ class DailyChargeController (private val subscriptionRepository: SubscriptionRep
 
     @Get
     fun dailyCharge(): HttpResponse<String> {
-        val activeSubscriptions = subscriptionRepository.findAll() // TODO: Filtrar ativos e com renew_date = hoje
-        for (sub in activeSubscriptions) {
+        // TODO: Filtrar ativos e com renew_date = hoje
+        val activeSubscriptions = subscriptionRepository.getActiveSubscriptions(20)
+
+        for (subscription in listOf(activeSubscriptions)) {
+            val sub = subscription!!.get()
 
             val today = Date()
             val calendar = Calendar.getInstance()

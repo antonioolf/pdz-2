@@ -1,5 +1,6 @@
 package br.com.antoniooliveira.controller
 
+import br.com.antoniooliveira.model.Plan
 import br.com.antoniooliveira.model.Subscription
 import br.com.antoniooliveira.repository.PlanRepository
 import br.com.antoniooliveira.repository.SubscriptionRepository
@@ -17,8 +18,12 @@ const val RENEWAL_DAYS = 60
 
 @Controller("subscription")
 class SubscriptionController (private val subscriptionRepository: SubscriptionRepository, private val planRepository: PlanRepository) {
-    val endpointPayments = "https://run.mocky.io/v3/5aade899-0865-43b8-9bd2-86b29ed34902"
+    private val endpointPayments = "https://run.mocky.io/v3/5aade899-0865-43b8-9bd2-86b29ed34902"
 
+    // {
+    //    "id_customer": Int,
+    //    "id_plan": Int
+    // }
     @Post
     fun create(subscription: Subscription): HttpResponse<Any> {
         if (!planRepository.existsById(subscription.id_plan)) {
@@ -45,7 +50,11 @@ class SubscriptionController (private val subscriptionRepository: SubscriptionRe
             val obj = JSONObject()
             obj.put("id_customer", subscription.id_customer)
             obj.put("id_subscription", subscription.id)
-            obj.put("value", 123) // TODO: Pegar valor do plan
+
+            val plan : Optional<Plan> = planRepository.findById(subscription.id_plan)
+            if (plan.isPresent) {
+                obj.put("value", plan.get().value)
+            }
 
             val client = OkHttpClient()
             val request: Request = Request.Builder()
