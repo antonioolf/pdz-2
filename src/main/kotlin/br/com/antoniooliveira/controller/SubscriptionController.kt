@@ -46,36 +46,23 @@ class SubscriptionController (private val subscriptionRepository: SubscriptionRe
             end_subscription = calendarEnd.time
         )
 
-//        return HttpResponse.created(subscriptionRepository.save(subscription))
-
         try {
-            println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
             println("Customer ID: ${subscription.id_customer}")
             println("Subscription ID: ${subscription.id}")
-            println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
 
             val requestBody = JSONObject()
 
             requestBody.put("id_customer", subscription.id_customer)
             requestBody.put("id_subscription", subscription.id)
 
-//            val formBody: FormBody.Builder = FormBody.Builder()
-//                .add("id_customer", subscription.id_customer.toString())
-//                .add("id_subscription", subscription.id.toString())
-
             val plan : Optional<Plan> = planRepository.findById(subscription.id_plan)
             if (plan.isPresent) {
-//                formBody.add("value", plan.get().value.toString())
                 requestBody.put("value", plan.get().value)
-                println(">>>>>>>>>>>>>>>>>>>>>>>>>>>")
                 println("Plan found: ${plan.get().value}")
-                println(">>>>>>>>>>>>>>>>>>>>>>>>>>>")
             }
 
-//            val body = formBody.build()
-
-            val JSON = MediaType.get("application/json; charset=utf-8")
-            val body = create(JSON, requestBody.toString())
+            val json = MediaType.get("application/json; charset=utf-8")
+            val body = create(json, requestBody.toString())
 
             val client = OkHttpClient()
             val request2: Request = Request.Builder()
