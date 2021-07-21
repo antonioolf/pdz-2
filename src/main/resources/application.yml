@@ -1,9 +1,11 @@
 micronaut:
   application:
     name: pdz2
+  server:
+    port: 8085
 datasources:
   default:
-    jdbc-url: jdbc:postgresql://localhost:5432/subscriptions_db
+    jdbc-url: jdbc:postgresql://postgres-subscription:5432/subscriptions_db
     username: 'admin'
     password: '123'
     driverClassName: org.postgresql.Driver

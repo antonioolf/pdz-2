@@ -2,12 +2,13 @@ package br.com.antoniooliveira.model
 
 import io.micronaut.core.annotation.Introspected
 import javax.persistence.*
+import java.util.*
 
 @Entity
 @Introspected
 data class Plan (
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long,
+    @Id
+    val id: UUID = UUID.randomUUID(),
 
     @Column
     val plan_name: String,

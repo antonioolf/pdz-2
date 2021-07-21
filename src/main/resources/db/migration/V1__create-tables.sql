@@ -1,14 +1,14 @@
 CREATE TABLE plan (
-	id serial PRIMARY KEY,
+	id UUID PRIMARY KEY,
 	plan_name VARCHAR (50),
 	value money NOT NULL,
 	active boolean default true
 );
 
 CREATE TABLE subscription (
-	id serial PRIMARY KEY,
-    id_customer integer,
-    id_plan integer,
+	id UUID PRIMARY KEY,
+    id_customer UUID,
+    id_plan UUID,
     renewal_days integer,
     active boolean,
     start_subscription date,

@@ -1,14 +1,14 @@
 package br.com.antoniooliveira.controller
 
+import br.com.antoniooliveira.controller.requests.SubscriptionPostRequest
 import br.com.antoniooliveira.model.Plan
 import br.com.antoniooliveira.model.Subscription
 import br.com.antoniooliveira.repository.PlanRepository
 import br.com.antoniooliveira.repository.SubscriptionRepository
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.annotation.*
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.Response
+import okhttp3.*
+import okhttp3.RequestBody.create
 import org.json.JSONObject
 import java.util.*
 
@@ -18,51 +18,75 @@ const val RENEWAL_DAYS = 60
 
 @Controller("subscription")
 class SubscriptionController (private val subscriptionRepository: SubscriptionRepository, private val planRepository: PlanRepository) {
-    private val endpointPayments = "https://run.mocky.io/v3/5aade899-0865-43b8-9bd2-86b29ed34902"
+//    val endpointPayments = "https://run.mocky.io/v3/5aade899-0865-43b8-9bd2-86b29ed34902"
+    val endpointPayments = "http://payments:8082/payment"
 
-    // {
-    //    "id_customer": Int,
-    //    "id_plan": Int
-    // }
     @Post
-    fun create(subscription: Subscription): HttpResponse<Any> {
-        if (!planRepository.existsById(subscription.id_plan)) {
+    fun create(request: SubscriptionPostRequest): HttpResponse<Any> {
+        if (!planRepository.existsById(request.id_plan)) {
             return HttpResponse.noContent()
         }
-
-        subscription.renewal_days = RENEWAL_DAYS
-        subscription.active = true
 
         val today = Date()
         val calendar = Calendar.getInstance()
         calendar.time = today
         calendar.add(Calendar.DATE, RENEWAL_DAYS)
 
-        subscription.start_subscription = today
-        subscription.next_renewal_date = calendar.time
-
         val calendarEnd = Calendar.getInstance()
         calendarEnd.time = today
         calendarEnd.add(Calendar.DATE, SUBSCRIPTION_TOTAL_DAYS)
-        subscription.end_subscription = calendarEnd.time
+
+        val subscription = Subscription(
+            id_customer = request.id_customer,
+            id_plan = request.id_plan,
+            renewal_days = RENEWAL_DAYS,
+            active = true,
+            start_subscription = today,
+            next_renewal_date = calendar.time,
+            end_subscription = calendarEnd.time
+        )
+
+//        return HttpResponse.created(subscriptionRepository.save(subscription))
 
         try {
-            val obj = JSONObject()
-            obj.put("id_customer", subscription.id_customer)
-            obj.put("id_subscription", subscription.id)
+            println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+            println("Customer ID: ${subscription.id_customer}")
+            println("Subscription ID: ${subscription.id}")
+            println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+
+            val requestBody = JSONObject()
+
+            requestBody.put("id_customer", subscription.id_customer)
+            requestBody.put("id_subscription", subscription.id)
+
+//            val formBody: FormBody.Builder = FormBody.Builder()
+//                .add("id_customer", subscription.id_customer.toString())
+//                .add("id_subscription", subscription.id.toString())
 
             val plan : Optional<Plan> = planRepository.findById(subscription.id_plan)
             if (plan.isPresent) {
-                obj.put("value", plan.get().value)
+//                formBody.add("value", plan.get().value.toString())
+                requestBody.put("value", plan.get().value)
+                println(">>>>>>>>>>>>>>>>>>>>>>>>>>>")
+                println("Plan found: ${plan.get().value}")
+                println(">>>>>>>>>>>>>>>>>>>>>>>>>>>")
             }
 
+//            val body = formBody.build()
+
+            val JSON = MediaType.get("application/json; charset=utf-8")
+            val body = create(JSON, requestBody.toString())
+
             val client = OkHttpClient()
-            val request: Request = Request.Builder()
+            val request2: Request = Request.Builder()
+                .addHeader("Content-Type", "application/json; charset=utf8")
                 .url(endpointPayments)
+                .post(body)
                 .build()
 
-            val response: Response = client.newCall(request).execute()
-            if (response.code() == 200) {
+            val response: Response = client.newCall(request2).execute()
+            print("Response code ${response.code()}\n")
+            if (response.code() in 200..299) {
                 return HttpResponse.created(subscriptionRepository.save(subscription))
             } else if(response.code() == 400) {
                 return HttpResponse.serverError(response.body()!!.string())
@@ -76,10 +100,10 @@ class SubscriptionController (private val subscriptionRepository: SubscriptionRe
     }
 
     @Get("/{id}")
-    fun read(id: Long): HttpResponse<Subscription> {
+    fun read(id: UUID): HttpResponse<Subscription> {
         val subscription = subscriptionRepository.findById(id)
 
-        if (subscription.isEmpty) {
+        if (!subscription.isPresent) {
             return HttpResponse.noContent()
         }
 
@@ -97,7 +121,7 @@ class SubscriptionController (private val subscriptionRepository: SubscriptionRe
     }
 
     @Delete
-    fun delete(id: Long): HttpResponse<Subscription>  {
+    fun delete(id: UUID): HttpResponse<Subscription>  {
         subscriptionRepository.deleteById(id)
         return HttpResponse.ok()
     }

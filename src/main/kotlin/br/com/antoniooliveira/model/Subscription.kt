@@ -7,14 +7,14 @@ import javax.persistence.*
 @Entity
 @Introspected
 data class Subscription (
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long,
+    @Id
+    val id: UUID = UUID.randomUUID(),
 
     @Column
-    val id_customer: Long,
+    val id_customer: UUID,
 
     @Column
-    val id_plan: Long,
+    val id_plan: UUID,
 
     @Column
     var renewal_days: Int?,
